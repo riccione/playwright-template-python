@@ -32,9 +32,10 @@ test failures.
 ├── .gitignore               # Strict untracked execution pattern matching
 ├── .pre-commit-config.yaml  # Intercepts git loops to enforce ruff styling
 ├── Jenkinsfile              # Jenkins Declarative pipeline engine script
+├── LICENSE                  # MIT License agreement
 ├── pytest.ini               # Root-level configuration file for execution flags
 ├── pyproject.toml           # Project definitions and package dependencies
-├── config.py                # Single source of truth environment parser 
+├── config.py                # Single source of truth environment parser
 ├── fixtures/
 │   └── page_fixtures.py     # Global Pytest fixtures providing encapsulated page instances
 ├── pages/
@@ -208,3 +209,9 @@ __pycache__/
 node_modules/
 
 ```
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
