@@ -1,26 +1,30 @@
+// Jenkinsfile
 pipeline {
     agent {
         // Run the pipeline inside the official Python image matching local setup
         docker {
             image 'python:3.13-slim'
-            // Mount a local workspace cache folder so uv doesn't redownload packages every run
-            args '-v /var/tmp/uv-cache:/custom-cache-dir'
+            // Mount a local workspace cache folder for both uv and Playwright binaries
+            args '-v /var/tmp/uv-cache:/custom-cache-dir -v /var/tmp/playwright-cache:/custom-playwright-dir'
         }
     }
 
     environment {
-        // Tell uv to use mounted container cache directory
-        UV_CACHE_DIR   = '/custom-cache-dir'
+        // Tell uv to use our mounted container cache directory
+        UV_CACHE_DIR             = '/custom-cache-dir'
+        
+        // Redirect Playwright to look for and install browsers into our second mounted cache folder
+        PLAYWRIGHT_BROWSERS_PATH = '/custom-playwright-dir'
         
         // Add uv binaries directly to the execution PATH
-        PATH           = "/root/.local/bin:${env.PATH}"
+        PATH                     = "/root/.local/bin:${env.PATH}"
         
         // System Configuration Defaults (Override via Jenkins UI Credentials if needed)
-        BASE_URL       = 'https://playwright.dev/'
+        BASE_URL                 = 'https://playwright.dev/'
         
         // Safely pull private tokens using Jenkins internal Credentials Provider
-        ADMIN_USER     = credentials('JENKINS_ADMIN_USER')
-        ADMIN_PASSWORD = credentials('JENKINS_ADMIN_PASSWORD')
+        ADMIN_USER               = credentials('JENKINS_ADMIN_USER')
+        ADMIN_PASSWORD           = credentials('JENKINS_ADMIN_PASSWORD')
     }
 
     options {
@@ -42,6 +46,7 @@ pipeline {
                     sh 'uv sync --frozen'
                     
                     // Download headless web browsers and operating system dependencies
+                    // (Will use /custom-playwright-dir on the host machine, skipping downloads on future runs!)
                     sh 'uv run playwright install --with-deps'
                 }
             }
