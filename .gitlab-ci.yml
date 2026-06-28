@@ -2,7 +2,7 @@ default:
   image: python:3.13-slim  # Matches local Python runtime environment
   before_script:
     # Install essential system dependencies required for curl/piping and browser instances
-    - apt-get update && apt-get install -y curl Git
+    - apt-get update && apt-get install -y curl git
     # Install astral-sh uv globally inside the container
     - curl -LsSf https://astral.sh/uv/install.sh | sh
     - export PATH="$HOME/.local/bin:$PATH"
@@ -18,11 +18,14 @@ cache:
       - uv.lock
   paths:
     - .cache/uv/
+    - .cache/ms-playwright/ # Cache the heavy browser binaries
     - .venv/
 
 variables:
   # Instruct uv to use our specific local caching folder
   UV_CACHE_DIR: "$CI_PROJECT_DIR/.cache/uv"
+  # Force Playwright to download browsers inside the project folder so GitLab can cache it
+  PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.cache/ms-playwright"
   # Environment Variables (Overridable inside GitLab UI under Settings -> CI/CD -> Variables)
   BASE_URL: "https://playwright.dev/"
 
