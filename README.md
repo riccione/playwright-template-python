@@ -132,19 +132,24 @@ allure serve allure-results
 
 When executing `uv run pytest`, you can append these optional flags to control output verbosity, parallel execution, or debugging parameters:
 
-### 1. Output & Logging Controls
+### 1. Visual Debugging & Local Execution Controls
+* `--headed`: **Disables headless mode.** Launches a physical, visible browser window on your monitor so you can watch the test execution, clicks, and transitions happen live.
+* `--slowmo <ms>`: **Introduces action delays.** Slows down all automated browser actions (clicks, inputs, navigations) by a set duration in milliseconds. Great for tracing fast visual flows (e.g., `uv run pytest --headed --slowmo 500`).
+* `--devtools`: **Launches browser developer tools.** Automatically spins up a headed browser window with the Chrome/Firefox Inspector console pre-docked. Perfect for profiling network payloads or tracking DOM selectors mid-test.
+
+### 2. Output & Logging Controls
 
 * `-s` (or `--capture=no`): **Disables output capturing.** Forces Pytest to print all standard out logs (`print()` statements) immediately to the console. Use this if you are missing your Setup or Teardown messages.
 * `-v`: **Verbose mode.** Displays the full name of every individual test and its parametrization parameters instead of just dots (`.F`).
 * `-rA`: **Show All Output.** Forces Pytest to print a comprehensive summary at the end of the run containing the captured `stdout`/`stderr` text blocks for *both* passed and failed tests.
 
-### 2. Execution Control & Diagnostics
+### 3. Execution Control & Diagnostics
 
 * `-x` (or `--exitfirst`): **Stop on first failure.** Instantly terminates the entire test suite run the moment a single test fails. Ideal for debugging continuous integration pipelines.
 * `--lf` (or `--last-failed`): **Run only failures.** Reads the cache memory and re-runs only the specific tests that failed during the previous execution session.
 * `-k "expression"`: **Filter by test name.** Runs tests whose names match a keyword filter string (e.g., `uv run pytest -k "login"` runs only login-related tests).
 
-### 3. Parallelization & Scaling
+### 4. Parallelization & Scaling
 
 * `-n <num>`: **Multi-threaded execution** (via `pytest-xdist`). Spreads tests concurrently across multiple local machine CPU worker cores:
 
