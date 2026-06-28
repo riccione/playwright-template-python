@@ -1,3 +1,7 @@
+# ==============================================================================
+# Playwright Template Python GitIgnore Configuration
+# ==============================================================================
+
 # Python-generated files
 __pycache__/
 *.py[oc]
@@ -8,3 +12,29 @@ wheels/
 
 # Virtual environments
 .venv
+venv/
+ENV/
+
+# Local JavaScript/Node Tooling Residue (From playwright dependencies)
+node_modules/
+package.json
+package-lock.json
+
+# Operating System Traces
+.DS_Store
+Thumbs.db
+
+# Environment Secrets & Credentials Context
+.env
+.env.local
+*.env
+
+# Automated Test Run Artifacts & Media Records
+test-results/
+allure-results/
+allure-report/
+reports/
+*.html
+*.png
+*.mp4
+*.jpeg
