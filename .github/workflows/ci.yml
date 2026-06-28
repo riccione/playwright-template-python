@@ -1,0 +1,57 @@
+name: Playwright Regression Pipeline
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    
+    - name: Install uv with Cache Management
+      # Using an immutable pinned tag following astral-sh specifications
+      uses: astral-sh/setup-uv@v8.2.0
+      with:
+        enable-cache: true
+        cache-dependency-glob: "**/uv.lock"
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13' # Upgraded to match your system runtime string context
+
+    - name: Install dependencies
+      run: |
+        uv sync
+        uv run playwright install --with-deps
+
+    - name: Run Tests
+      # Map your local environment configs directly into the CI container memory space
+      env:
+        BASE_URL: https://playwright.dev/ # or use GitHub Secrets: ${{ secrets.BASE_URL }}
+        ADMIN_USER: ${{ secrets.ADMIN_USER }}
+        ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      run: uv run pytest --alluredir=allure-results
+
+    - name: Upload Test Failure Artifacts (Videos/Screenshots)
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: failure-videos-and-screenshots
+        path: |
+          test-results/
+          reports/
+        retention-days: 7
+
+    - name: Upload Raw Allure Report Metadata
+      if: always() # Always upload data so you can check history even on 100% passing tests
+      uses: actions/upload-artifact@v4
+      with:
+        name: allure-results-metadata
+        path: allure-results/
+        retention-days: 14

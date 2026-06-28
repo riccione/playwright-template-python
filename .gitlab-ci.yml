@@ -1,0 +1,45 @@
+default:
+  image: python:3.13-slim  # Matches local Python runtime environment
+  before_script:
+    # Install essential system dependencies required for curl/piping and browser instances
+    - apt-get update && apt-get install -y curl Git
+    # Install astral-sh uv globally inside the container
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - export PATH="$HOME/.local/bin:$PATH"
+    # Synchronize project dependencies using virtual environment settings
+    - uv sync --frozen
+    # Install Playwright browser binaries along with system OS dependencies
+    - uv run playwright install --with-deps
+
+# Centralized global environment caching strategy
+cache:
+  key:
+    files:
+      - uv.lock
+  paths:
+    - .cache/uv/
+    - .venv/
+
+variables:
+  # Instruct uv to use our specific local caching folder
+  UV_CACHE_DIR: "$CI_PROJECT_DIR/.cache/uv"
+  # Environment Variables (Overridable inside GitLab UI under Settings -> CI/CD -> Variables)
+  BASE_URL: "https://playwright.dev/"
+
+stages:
+  - test
+
+run_regression_suite:
+  stage: test
+  timeout: 60 minutes
+  script:
+    # Run the test suite harvesting raw Allure metrics
+    - uv run pytest --alluredir=allure-results
+  artifacts:
+    name: "test-execution-artifacts-$CI_COMMIT_REF_SLUG"
+    when: always  # Preserves metadata files for historical reporting loops
+    expire_in: 2 weeks
+    paths:
+      - allure-results/
+      - test-results/
+      - reports/
