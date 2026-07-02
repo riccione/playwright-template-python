@@ -83,7 +83,7 @@ cp .env.example .env
 Open your newly created `.env` file and customize your workspace targets securely:
 
 ```ini
-BASE_URL=[https://playwright.dev/](https://playwright.dev/)
+BASE_URL=https://playwright.dev/
 ADMIN_USER=your_private_username
 ADMIN_PASSWORD=your_private_password
 
