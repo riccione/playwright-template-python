@@ -43,7 +43,8 @@ test failures.
 │   └── login_page.py        # Clean workflow extension decoupling logic from selectors
 └── tests/
     ├── conftest.py          # Global framework lifecycle hooks, setups, and teardowns
-    ├── api/                 # [.gitkeep] Isolated backend API assertions folder
+    ├── api/
+    │   └── test_example.py    # API testing examples with Playwright request context
     ├── regression/          # [.gitkeep] Broad validation execution scripts
     ├── smoke/               # [.gitkeep] High priority critical path milestones
     └── ui/
