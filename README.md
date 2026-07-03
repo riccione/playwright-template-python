@@ -52,6 +52,32 @@ test failures.
 
 ```
 
+### Project Conventions
+
+This template provides a minimal structure. As your project grows, create dedicated helper directories at the root level alongside `pages/` and `fixtures/`:
+
+| Directory | Purpose |
+|---|---|
+| `api/` | Reusable API clients, endpoint definitions, request/response models |
+| `utils/` | Shared utilities (data generators, wait helpers, custom logging) |
+| `helpers/` | Cross-cutting concerns (auth helpers, environment builders) |
+
+```text
+# Example of a grown project structure
+├── api/
+│   ├── client.py           # Reusable HTTP client with auth handling
+│   ├── endpoints.py        # URL constants
+│   └── models.py           # Pydantic response/request models
+├── fixtures/
+├── pages/
+├── utils/
+│   ├── data_generator.py   # Test data factories
+│   └── wait_helpers.py     # Custom wait conditions
+└── tests/
+```
+
+Keep test files under `tests/` and reusable logic under these root-level directories.
+
 ---
 
 ## Prerequisites & Installation
