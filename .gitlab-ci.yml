@@ -1,48 +1,61 @@
 default:
-  image: python:3.13-slim  # Matches local Python runtime environment
+  image: python:3.13-slim
   before_script:
-    # Install essential system dependencies required for curl/piping and browser instances
     - apt-get update && apt-get install -y curl git
-    # Install astral-sh uv globally inside the container
     - curl -LsSf https://astral.sh/uv/install.sh | sh
     - export PATH="$HOME/.local/bin:$PATH"
-    # Synchronize project dependencies using virtual environment settings
     - uv sync --frozen
-    # Install Playwright browser binaries along with system OS dependencies
     - uv run playwright install --with-deps
 
-# Centralized global environment caching strategy
 cache:
   key:
     files:
       - uv.lock
   paths:
     - .cache/uv/
-    - .cache/ms-playwright/ # Cache the heavy browser binaries
+    - .cache/ms-playwright/
     - .venv/
 
 variables:
-  # Instruct uv to use our specific local caching folder
   UV_CACHE_DIR: "$CI_PROJECT_DIR/.cache/uv"
-  # Force Playwright to download browsers inside the project folder so GitLab can cache it
   PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.cache/ms-playwright"
-  # Environment Variables (Overridable inside GitLab UI under Settings -> CI/CD -> Variables)
   BASE_URL: "https://playwright.dev/"
 
 stages:
+  - quality
   - test
 
-run_regression_suite:
+quality:
+  stage: quality
+  script:
+    - uv run ruff check .
+    - uv run ruff format --check .
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  except:
+    changes:
+      - "**.md"
+      - "LICENSE"
+
+playwright:
   stage: test
+  needs: [quality]
   timeout: 60 minutes
   script:
-    # Run the test suite harvesting raw Allure metrics
     - uv run pytest --alluredir=allure-results
   artifacts:
     name: "test-execution-artifacts-$CI_COMMIT_REF_SLUG"
-    when: always  # Preserves metadata files for historical reporting loops
-    expire_in: 2 weeks
+    when: always
+    expire_in: 30 days
     paths:
-      - allure-results/
-      - test-results/
       - reports/
+      - allure-results/
+      - allure-report/
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  except:
+    changes:
+      - "**.md"
+      - "LICENSE"

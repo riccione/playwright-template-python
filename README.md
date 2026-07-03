@@ -26,7 +26,7 @@ test failures.
 ## Directory Structure
 
 ```text
-├── .github/workflows/ci.yml # GitHub Actions pipeline blueprint
+├── .github/workflows/playwright.yml # GitHub Actions pipeline blueprint
 ├── .gitlab-ci.yml           # GitLab CI orchestration blueprint
 ├── .env.example             # Safe template for tracking configuration variables
 ├── .gitignore               # Strict untracked execution pattern matching
