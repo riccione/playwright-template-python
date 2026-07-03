@@ -44,11 +44,12 @@ test failures.
 └── tests/
     ├── conftest.py          # Global framework lifecycle hooks, setups, and teardowns
     ├── api/
-    │   └── test_example.py    # API testing examples with Playwright request context
+    │   └── test_api_example.py  # API testing examples with Playwright request context
     ├── regression/          # [.gitkeep] Broad validation execution scripts
     ├── smoke/               # [.gitkeep] High priority critical path milestones
     └── ui/
-        └── test_page.py     # UI test suites and regression scripts
+        ├── test_page.py        # Page Object Model-based UI test suites
+        └── test_ui_example.py  # Basic UI testing examples
 
 ```
 
