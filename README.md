@@ -43,13 +43,41 @@ test failures.
 │   └── login_page.py        # Clean workflow extension decoupling logic from selectors
 └── tests/
     ├── conftest.py          # Global framework lifecycle hooks, setups, and teardowns
-    ├── api/                 # [.gitkeep] Isolated backend API assertions folder
+    ├── api/
+    │   └── test_api_example.py  # API testing examples with Playwright request context
     ├── regression/          # [.gitkeep] Broad validation execution scripts
     ├── smoke/               # [.gitkeep] High priority critical path milestones
     └── ui/
-        └── test_page.py     # UI test suites and regression scripts
+        ├── test_page.py        # Page Object Model-based UI test suites
+        └── test_ui_example.py  # Basic UI testing examples
 
 ```
+
+### Project Conventions
+
+This template provides a minimal structure. As your project grows, create dedicated helper directories at the root level alongside `pages/` and `fixtures/`:
+
+| Directory | Purpose |
+|---|---|
+| `api/` | Reusable API clients, endpoint definitions, request/response models |
+| `utils/` | Shared utilities (data generators, wait helpers, custom logging) |
+| `helpers/` | Cross-cutting concerns (auth helpers, environment builders) |
+
+```text
+# Example of a grown project structure
+├── api/
+│   ├── client.py           # Reusable HTTP client with auth handling
+│   ├── endpoints.py        # URL constants
+│   └── models.py           # Pydantic response/request models
+├── fixtures/
+├── pages/
+├── utils/
+│   ├── data_generator.py   # Test data factories
+│   └── wait_helpers.py     # Custom wait conditions
+└── tests/
+```
+
+Keep test files under `tests/` and reusable logic under these root-level directories.
 
 ---
 
