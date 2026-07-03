@@ -48,6 +48,7 @@ test failures.
     ├── regression/          # [.gitkeep] Broad validation execution scripts
     ├── smoke/               # [.gitkeep] High priority critical path milestones
     └── ui/
+        ├── test_login.py        # Login workflow POM demonstration
         ├── test_page.py        # Page Object Model-based UI test suites
         └── test_ui_example.py  # Basic UI testing examples
 
