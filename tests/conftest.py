@@ -1,8 +1,11 @@
 import base64
 from datetime import datetime
+import logging
 import os
 import pytest
 from config import settings
+
+logger = logging.getLogger("Framework")
 
 # Try importing allure safely, if not installed or used it won't crash
 try:
@@ -79,7 +82,7 @@ def pytest_runtest_makereport(item, call):
                 b64_img = base64.b64encode(screenshot_bytes).decode("utf-8")
                 report.extras.append(extras.png(b64_img))
             except Exception as e:
-                print(f"\n[Report Error] Failed to attach screenshot: {e}")
+                logger.error(f"Failed to attach screenshot: {e}")
 
             # ATTACH FAILURE VIDEOS
             try:
@@ -113,13 +116,12 @@ def pytest_runtest_makereport(item, call):
                             )
                         )
             except Exception as e:
-                print(
-                    f"\n[Report Error] Failed to handle video capture processing: {e}"
-                )
+                logger.error(f"Failed to handle video capture processing: {e}")
 
 
-# - scope="session": Executes once when the test process boots up, rather than repeating for each test.
-# - autouse=True: Automatically triggers without needing to explicitly request it as a test argument.
+# ==============================================================================
+# GLOBAL SETUP & TEARDOWN
+# ==============================================================================
 @pytest.fixture(scope="session", autouse=True)
 def global_system_lifecycle():
     """
@@ -128,11 +130,21 @@ def global_system_lifecycle():
     autouse=True means every test session runs it automatically.
     """
     # ------------------ SETUP ------------------
-    print("\n[Global Setup] Spinning up docker containers or seeding test database...")
+    logger.info("=" * 70)
+    logger.info("[GLOBAL SETUP] Booting test execution session...")
+    logger.info(f"[GLOBAL SETUP] Base URL target configured as: {settings.BASE_URL}")
+    logger.info("=" * 70)
+
+    # Place global hooks here (e.g., seeding a database, initializing Docker, or global auth API pins)
 
     yield  # <--- This is where the tests actually execute!
 
     # ----------------- TEARDOWN -----------------
-    print(
-        "\n[Global Teardown] Purging temporary database records and cleaning workspace..."
+    logger.info("=" * 70)
+    logger.info("[GLOBAL TEARDOWN] Test suite execution loop completed.")
+    logger.info(
+        "[GLOBAL TEARDOWN] Purging temporary run artifacts and memory buffers..."
     )
+    logger.info("=" * 70)
+
+    # Place global cleanups here (e.g., tearing down testing infrastructure, dropping DB records)
