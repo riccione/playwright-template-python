@@ -156,6 +156,47 @@ allure serve allure-results
 
 ---
 
+## Cross-Browser Testing
+
+The framework supports Chromium, Firefox, and WebKit via the `--browser` flag. By default, pytest-playwright runs tests on Chromium.
+
+### Run on Specific Browser
+
+```bash
+# Run tests on Chromium (default)
+uv run pytest --browser chromium
+
+# Run tests on Firefox
+uv run pytest --browser firefox
+
+# Run tests on WebKit (Safari engine)
+uv run pytest --browser webkit
+```
+
+### Run on All Browsers
+
+```bash
+# Execute tests sequentially across all browsers
+uv run pytest --browser chromium --browser firefox --browser webkit
+```
+
+### Device Emulation
+
+```bash
+# Run tests emulating a specific device
+uv run pytest --device "iPhone 13"
+uv run pytest --device "Pixel 5"
+```
+
+### Headed Mode
+
+```bash
+# Run with visible browser window for debugging
+uv run pytest --headed --browser chromium
+```
+
+---
+
 ## Useful Pytest Command Line Flags
 
 When executing `uv run pytest`, you can append these optional flags to control output verbosity, parallel execution, or debugging parameters:
