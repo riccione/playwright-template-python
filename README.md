@@ -31,8 +31,10 @@ test failures.
 ├── .env.example             # Safe template for tracking configuration variables
 ├── .gitignore               # Strict untracked execution pattern matching
 ├── .pre-commit-config.yaml  # Intercepts git loops to enforce ruff styling
+├── Dockerfile               # Containerized Playwright execution environment
 ├── Jenkinsfile              # Jenkins Declarative pipeline engine script
 ├── LICENSE                  # MIT License agreement
+├── docker-compose.yml       # Docker Compose orchestration for local runs
 ├── pytest.ini               # Root-level configuration file for execution flags
 ├── pyproject.toml           # Project definitions and package dependencies
 ├── config.py                # Single source of truth environment parser
@@ -125,6 +127,19 @@ To spin up interactive Allure reporting, your host machine requires the Allure c
 ```bash
 npm install -g allure
 
+```
+
+### 4. (Optional) Docker Support
+
+Run tests in a containerized environment without installing browsers locally:
+
+```bash
+# Build and run tests via Docker Compose
+docker compose up --build
+
+# Or run directly with Docker
+docker build -t playwright-python .
+docker run --rm -v ./.env:/app/.env:ro playwright-python
 ```
 
 ---
