@@ -1,7 +1,7 @@
 [project]
 name = "playwright-template-python"
 version = "0.1.0"
-description = "Add your description here"
+description = "End-to-end testing framework with Playwright, pytest, Page Object Model, and dual reporting"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
