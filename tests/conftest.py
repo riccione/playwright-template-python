@@ -1,8 +1,10 @@
 import base64
-from datetime import datetime
 import logging
 import os
+from datetime import datetime
+
 import pytest
+
 from config import settings
 
 logger = logging.getLogger("Framework")
@@ -97,9 +99,7 @@ def pytest_runtest_makereport(item, call):
                             video_bytes = video_file.read()
 
                         # A: Stream into the Allure 3 dashboard environment
-                        if allure and item.config.getoption(
-                            "--alluredir", default=None
-                        ):
+                        if allure and item.config.getoption("--alluredir", default=None):
                             allure.attach(
                                 video_bytes,
                                 name="Failure Video Recording",
@@ -111,9 +111,7 @@ def pytest_runtest_makereport(item, call):
                         from pytest_html import extras
 
                         report.extras.append(
-                            extras.url(
-                                f"../{relative_path}", name="Watch Failure Video"
-                            )
+                            extras.url(f"../{relative_path}", name="Watch Failure Video")
                         )
             except Exception as e:
                 logger.error(f"Failed to handle video capture processing: {e}")
@@ -135,16 +133,14 @@ def global_system_lifecycle():
     logger.info(f"[GLOBAL SETUP] Base URL target configured as: {settings.BASE_URL}")
     logger.info("=" * 70)
 
-    # Place global hooks here (e.g., seeding a database, initializing Docker, or global auth API pins)
+    # Place global hooks here (e.g., seeding a database, Docker init, global auth)
 
     yield  # <--- This is where the tests actually execute!
 
     # ----------------- TEARDOWN -----------------
     logger.info("=" * 70)
     logger.info("[GLOBAL TEARDOWN] Test suite execution loop completed.")
-    logger.info(
-        "[GLOBAL TEARDOWN] Purging temporary run artifacts and memory buffers..."
-    )
+    logger.info("[GLOBAL TEARDOWN] Purging temporary run artifacts and memory buffers...")
     logger.info("=" * 70)
 
     # Place global cleanups here (e.g., tearing down testing infrastructure, dropping DB records)

@@ -1,4 +1,5 @@
 import logging
+
 from playwright.sync_api import Locator, Page, Response
 
 logger = logging.getLogger("Framework")
