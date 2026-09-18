@@ -58,12 +58,9 @@ def pytest_runtest_makereport(item, call):
 
     # Filter for failures inside the primary test execution step
     if report.when == "call" and report.failed:
-        # Locate the running Playwright browser tab instance
+        # Get the Playwright page fixture used by the test
         page_instance = None
-        if "base_page" in item.funcargs:
-            page_instance = item.funcargs["base_page"].page
-        elif "page" in item.funcargs:
-            page_instance = item.funcargs["page"]
+        page_instance = item.funcargs["page"]
 
         if page_instance:
             # ATTACH FAILURE SCREENSHOTS
