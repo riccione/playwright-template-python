@@ -41,7 +41,6 @@ test failures.
 ├── fixtures/
 │   └── page_fixtures.py     # Global Pytest fixtures providing encapsulated page instances
 ├── pages/
-│   ├── base_page.py         # Core Page Object wrapper handling Playwright components
 │   └── login_page.py        # Clean workflow extension decoupling logic from selectors
 └── tests/
     ├── conftest.py          # Global framework lifecycle hooks, setups, and teardowns
