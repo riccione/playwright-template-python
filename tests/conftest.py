@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 
 import pytest
+from pytest_html import extras
 
 from config import settings
 
@@ -42,14 +43,10 @@ def pytest_configure(config):
     config.option.htmlpath = os.path.join(reports_dir, report_name)
 
 
-# ==============================================================================
-# HOOK: GENERATING METADATA AND CAPTURING FAILURES
-# ==============================================================================
-# tryfirst=True ensures this hook runs before other plugins modify execution data.
-# hookwrapper=True allows us to wrap the standard execution phase so we can inspect outcome
+# Attach failure screenshots to test reports.
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    """Universal hook that attaches screenshots and videos to Allure 3 or Pytest-HTML on failure."""
+    """Attaches failure screenshots to Allure and Pytest-HTML."""
     outcome = yield
     report = outcome.get_result()
 
@@ -59,11 +56,9 @@ def pytest_runtest_makereport(item, call):
     # Filter for failures inside the primary test execution step
     if report.when == "call" and report.failed:
         # Get the Playwright page fixture used by the test
-        page_instance = None
-        page_instance = item.funcargs["page"]
+        page_instance = item.funcargs.get("page")
 
-        if page_instance:
-            # ATTACH FAILURE SCREENSHOTS
+        if page_instance is not None:
             try:
                 screenshot_bytes = page_instance.screenshot(full_page=True)
 
@@ -76,42 +71,10 @@ def pytest_runtest_makereport(item, call):
                     )
 
                 # B: Backup mapping for plain Pytest-HTML
-                from pytest_html import extras
-
                 b64_img = base64.b64encode(screenshot_bytes).decode("utf-8")
                 report.extras.append(extras.png(b64_img))
             except Exception as e:
                 logger.error(f"Failed to attach screenshot: {e}")
-
-            # ATTACH FAILURE VIDEOS
-            try:
-                # Explicitly close context to finalize video buffering blocks on disk
-                page_instance.context.close()
-
-                if page_instance.video:
-                    video_path = page_instance.video.path()
-
-                    if os.path.exists(video_path):
-                        with open(video_path, "rb") as video_file:
-                            video_bytes = video_file.read()
-
-                        # A: Stream into the Allure 3 dashboard environment
-                        if allure and item.config.getoption("--alluredir", default=None):
-                            allure.attach(
-                                video_bytes,
-                                name="Failure Video Recording",
-                                attachment_type=allure.attachment_type.WEBM,
-                            )
-
-                        # B: Map relative link path for plain Pytest-HTML
-                        relative_path = os.path.relpath(video_path, start=os.getcwd())
-                        from pytest_html import extras
-
-                        report.extras.append(
-                            extras.url(f"../{relative_path}", name="Watch Failure Video")
-                        )
-            except Exception as e:
-                logger.error(f"Failed to handle video capture processing: {e}")
 
 
 # ==============================================================================
