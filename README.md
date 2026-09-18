@@ -6,8 +6,7 @@ management.
 
 This framework implements a decoupled Page Object Model (POM) architecture,
 cross-browser support, test lifecycle tracking, linting quality gates, and dual-reporting capability
-(Pytest-HTML & Allure 3) featuring automated screenshot and video capture upon
-test failures.
+(Pytest-HTML & Allure 3) with automated failure screenshots and video capture.
 
 ---
 
@@ -17,8 +16,8 @@ test failures.
 * **Page Object Model (POM)**: Fully decoupled architecture separating page selectors from business workflows.
 * **Configuration Management**: Centralized `.env` handling via `python-dotenv` to eliminate hardcoded secrets.
 * **Code Quality & Enforcement**: Built-in automated linting and formatting via `ruff` backed by `pre-commit` git hooks.
-* **Dynamic Dual Reporting**: Built-in compatibility for choosing lightweight `pytest-html` tracking or fully enterprise-grade `Allure 3` visual dashboards.
-* **Rich Failure Artifacts**: Automated hook interception captures full-page browser screenshots and saves screen recordings explicitly on test failure conditions.
+* **Dynamic Dual Reporting**: Supports Pytest-HTML and Allure 3 reports.
+* **Failure Artifacts**: Failed UI tests automatically attach full-page screenshots to the configured test reports. Playwright records videos on failure using `--video retain-on-failure`.
 * **Universal CI/CD Ready**: Native multi-platform workflow blueprints provided out-of-the-box for GitHub Actions, GitLab CI, and Jenkins.
 
 ---
@@ -26,24 +25,24 @@ test failures.
 ## Directory Structure
 
 ```text
-├── .github/workflows/playwright.yml # GitHub Actions pipeline blueprint
-├── .gitlab-ci.yml           # GitLab CI orchestration blueprint
+├── .github/workflows/playwright.yml # GitHub Actions pipeline
+├── .gitlab-ci.yml           # GitLab CI pipeline
 ├── .env.example             # Safe template for tracking configuration variables
 ├── .gitignore               # Strict untracked execution pattern matching
 ├── .pre-commit-config.yaml  # Intercepts git loops to enforce ruff styling
 ├── Dockerfile               # Containerized Playwright execution environment
-├── Jenkinsfile              # Jenkins Declarative pipeline engine script
+├── Jenkinsfile              # Jenkins pipeline
 ├── LICENSE                  # MIT License agreement
 ├── docker-compose.yml       # Docker Compose orchestration for local runs
 ├── pytest.ini               # Root-level configuration file for execution flags
 ├── pyproject.toml           # Project definitions and package dependencies
 ├── config.py                # Single source of truth environment parser
 ├── fixtures/
-│   └── page_fixtures.py     # Global Pytest fixtures providing encapsulated page instances
+│   └── page_fixtures.py     # Reusable application-level fixtures, such as Page Objects
 ├── pages/
 │   └── login_page.py        # Clean workflow extension decoupling logic from selectors
 └── tests/
-    ├── conftest.py          # Global framework lifecycle hooks, setups, and teardowns
+    ├── conftest.py          # Pytest configuration, hooks, reporting, and global fixtures
     ├── api/
     │   └── test_api_example.py  # API testing examples with Playwright request context
     ├── regression/          # [.gitkeep] Broad validation execution scripts
@@ -55,31 +54,57 @@ test failures.
 
 ```
 
-### Project Conventions
+---
 
-This template provides a minimal structure. As your project grows, create dedicated helper directories at the root level alongside `pages/` and `fixtures/`:
+### `conftest.py` vs `fixtures/`
+
+The project separates Pytest infrastructure from reusable test fixtures.
+
+**`tests/conftest.py`** contains framework-level Pytest configuration and hooks, such as:
+
+- environment configuration fixtures
+- test reporting configuration
+- failure artifact handling
+- session-level fixtures when global setup or teardown is required
+
+**`fixtures/`** contains reusable fixtures that provide dependencies for tests.
+These are related to the application being tested rather than to Pytest itself.
+
+For example:
+
+```text
+fixtures/
+└── page_fixtures.py
+
+```
+provides Page Object instances such as `login_page`.
+
+Fixtures in this directory are registered through `pytest_plugins` in `tests/conftest.py`:
+
+```python
+pytest_plugins = [
+    "fixtures.page_fixtures",
+]
+
+```
+
+This keeps `conftest.py` focused on test infrastructure while application-specific test dependencies remain in `fixtures/`.
+
+---
+
+## Project Conventions
+
+The template intentionally starts with a small structure. Add directories when
+the project has a concrete need for them rather than creating abstractions in
+advance.
 
 | Directory | Purpose |
 |---|---|
-| `api/` | Reusable API clients, endpoint definitions, request/response models |
-| `utils/` | Shared utilities (data generators, wait helpers, custom logging) |
-| `helpers/` | Cross-cutting concerns (auth helpers, environment builders) |
+| `api/` | Reusable API clients and domain-specific API helpers |
+| `utils/` | Small generic utilities shared across different test areas |
+| `helpers/` | Reusable test helpers that do not belong to a specific API, Page Object, or fixture |
 
-```text
-# Example of a grown project structure
-├── api/
-│   ├── client.py           # Reusable HTTP client with auth handling
-│   ├── endpoints.py        # URL constants
-│   └── models.py           # Pydantic response/request models
-├── fixtures/
-├── pages/
-├── utils/
-│   ├── data_generator.py   # Test data factories
-│   └── wait_helpers.py     # Custom wait conditions
-└── tests/
-```
-
-Keep test files under `tests/` and reusable logic under these root-level directories.
+Keep test files under `tests/` and reusable test/application logic outside `tests/` when it is shared by multiple test areas.
 
 ---
 
@@ -225,7 +250,7 @@ When executing `uv run pytest`, you can append these optional flags to control o
 
 * `-s` (or `--capture=no`): **Disables output capturing.** Forces Pytest to print all standard out logs (`print()` statements) immediately to the console. Use this if you are missing your Setup or Teardown messages.
 * `-v`: **Verbose mode.** Displays the full name of every individual test and its parametrization parameters instead of just dots (`.F`).
-* `-rA`: **Show All Output.** Forces Pytest to print a comprehensive summary at the end of the run containing the captured `stdout`/`stderr` text blocks for *both* passed and failed tests.
+* `-rA`: **Show test summary details.** Displays an extended summary for all test outcomes.
 
 ### 3. Execution Control & Diagnostics
 
@@ -235,17 +260,13 @@ When executing `uv run pytest`, you can append these optional flags to control o
 
 ### 4. Parallelization & Scaling
 
-* `-n <num>`: **Multi-threaded execution** (via `pytest-xdist`). Spreads tests concurrently across multiple local machine CPU worker cores:
+* `-n <num>`: **Parallel execution** (via `pytest-xdist`). Runs tests across multiple worker processes:
 
 ```bash
 # Automatically scale threads across all available CPU cores
 uv run pytest -n auto
 
 ```
-
-*(If your terminal context experiences Java environment limitations, serve explicitly via Node: `npx allure-commandline serve allure-results`)*
-
----
 
 ## Configuration Details (`pytest.ini`)
 
