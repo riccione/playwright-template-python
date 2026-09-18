@@ -1,14 +1,7 @@
 import pytest
 from playwright.sync_api import Page
 
-from pages.base_page import BasePage
 from pages.login_page import LoginPage
-
-
-@pytest.fixture
-def base_page(page: Page) -> BasePage:
-    """Provides a fresh instance of BasePage using Playwright's built-in page fixture."""
-    return BasePage(page)
 
 
 @pytest.fixture
